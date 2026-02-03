@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LUCA — El Capo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES — Blanco y Negro Clásico
+   ═══════════════════════════════════════════ */
+:root {
+  --noir: #0a0a0a;
+  --deep: #1a1a1a;
+  --card: #252525;
+  --white: #f5f5f5;
+  --off-white: #e8e8e8;
+  --light-gray: #b8b8b8;
+  --mid-gray: #888888;
+  --dark-gray: #3a3a3a;
+  --accent: #d4d4d4;
+  --font-title: 'Cinzel', serif;
+  --font-body: 'Cormorant Garamond', serif;
+  --font-mono: 'Special Elite', cursive;
+  --radius: 6px;
+  --shadow: 0 16px 64px rgba(0,0,0,0.95);
+  --shadow-white: 0 0 30px rgba(255,255,255,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; background: var(--noir); color: var(--white);
+  font-family: var(--font-body); overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── BG con auto antiguo ─── */
+body::before {
+  content:''; position:fixed; inset:0; z-index:0;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23222;stop-opacity:1"/><stop offset="100%" style="stop-color:%230a0a0a;stop-opacity:1"/></linearGradient></defs><rect fill="url(%23sky)" width="1200" height="800"/><ellipse cx="600" cy="750" rx="350" ry="40" fill="%23050505" opacity="0.4"/><path d="M250 600 L350 580 L380 560 L420 555 L780 555 L820 560 L850 580 L950 600 L950 680 L850 700 L350 700 L250 680 Z" fill="%23111" stroke="%23333" stroke-width="2"/><rect x="380" y="580" width="60" height="40" rx="3" fill="%23222" stroke="%23444" stroke-width="1.5"/><rect x="760" y="580" width="60" height="40" rx="3" fill="%23222" stroke="%23444" stroke-width="1.5"/><rect x="450" y="565" width="300" height="50" rx="4" fill="%23181818" stroke="%23333" stroke-width="1.5"/><circle cx="340" cy="680" r="45" fill="%23111" stroke="%23555" stroke-width="3"/><circle cx="340" cy="680" r="30" fill="%230a0a0a" stroke="%23666" stroke-width="2"/><circle cx="860" cy="680" r="45" fill="%23111" stroke="%23555" stroke-width="3"/><circle cx="860" cy="680" r="30" fill="%230a0a0a" stroke="%23666" stroke-width="2"/><path d="M380 600 L420 590 L780 590 L820 600" fill="none" stroke="%23444" stroke-width="1.5"/><ellipse cx="500" cy="595" rx="8" ry="6" fill="%23555" opacity="0.6"/><ellipse cx="700" cy="595" rx="8" ry="6" fill="%23555" opacity="0.6"/><rect x="250" y="620" width="60" height="15" rx="2" fill="%23333"/><rect x="890" y="620" width="60" height="15" rx="2" fill="%23333"/></svg>');
+  background-size: cover;
+  background-position: center bottom;
+  opacity: 0.15;
+}
+body::after {
+  content:''; position:fixed; inset:0; z-index:1; pointer-events:none;
+  opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:256px;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════ */
+.app { position:relative; z-index:2; display:flex; height:100vh; max-width:1400px; margin:0 auto; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width:290px; min-width:290px; display:flex; flex-direction:column;
+  background: linear-gradient(180deg, #1f1f1f 0%, #151515 100%);
+  border-right:2px solid var(--mid-gray);
+  box-shadow: inset -2px 0 12px rgba(255,255,255,0.05);
+  overflow:hidden;
+}
+
+.sidebar-header {
+  padding:32px 20px 24px; text-align:center;
+  border-bottom:2px solid var(--mid-gray);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+}
+
+.portrait {
+  width:90px; height:90px; margin:0 auto 16px;
+  border-radius:50%;
+  border:3px solid var(--white);
+  background: radial-gradient(circle at 30% 30%, #2a2a2a, #0a0a0a);
+  box-shadow: var(--shadow-white), inset 0 4px 16px rgba(0,0,0,0.9);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.portrait::after {
+  content:''; position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.1), transparent 65%);
+  pointer-events:none;
+}
+.portrait svg { width:75px; height:75px; position:relative; z-index:1; }
+
+.sidebar-header h1 {
+  font-family:var(--font-title); font-size:18px; font-weight:900;
+  color:var(--white); letter-spacing:7px; text-transform:uppercase;
+  text-shadow: 0 2px 8px rgba(255,255,255,0.4);
+}
+.sidebar-header .tagline {
+  font-family:var(--font-body); font-style:italic;
+  font-size:13px; color:var(--light-gray); margin-top:6px; letter-spacing:1.5px;
+  font-weight:600;
+}
+
+/* conv list */
+.conv-list { flex:1; overflow-y:auto; padding:12px; scrollbar-width:thin; scrollbar-color:var(--mid-gray) transparent; }
+.conv-list::-webkit-scrollbar { width:4px; }
+.conv-list::-webkit-scrollbar-thumb { background:var(--mid-gray); border-radius:2px; }
+
+.conv-item {
+  display:flex; align-items:center; gap:10px; padding:12px 14px;
+  border-radius:var(--radius); cursor:pointer; margin-bottom:4px;
+  border:1px solid transparent; 
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03));
+  transition:all .25s;
+}
+.conv-item:hover { 
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05)); 
+  border-color:rgba(255,255,255,0.3);
+  transform: translateX(3px);
+}
+.conv-item.active { 
+  background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.08)); 
+  border-color:var(--white);
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
+.conv-item .conv-icon { width:18px; text-align:center; color:var(--white); font-size:16px; font-weight:bold; }
+.conv-item .conv-title { font-family:var(--font-mono); font-size:13px; color:var(--off-white); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.conv-item .conv-time { font-size:11px; color:var(--mid-gray); }
+
+/* sidebar footer */
+.sidebar-footer { padding:16px; border-top:2px solid var(--mid-gray); }
+.btn-new {
+  width:100%; padding:12px;
+  background:linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border:2px solid var(--white); border-radius:var(--radius);
+  color:var(--white); font-family:var(--font-mono); font-size:13px; font-weight:bold;
+  cursor:pointer; transition:all .3s;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  text-transform:uppercase; letter-spacing:1px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+.btn-new:hover { 
+  background:linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%); 
+  box-shadow: var(--shadow-white);
+  transform: translateY(-2px);
+}
+
+/* ─── MAIN ─── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+.topbar {
+  padding:18px 28px; border-bottom:2px solid var(--mid-gray);
+  display:flex; align-items:center; justify-content:space-between;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(26,26,26,0.95));
+  backdrop-filter:blur(10px);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.7);
+}
+.topbar-left { display:flex; align-items:center; gap:12px; }
+.topbar-left .status-dot {
+  width:8px; height:8px; border-radius:50%; background:#f5f5f5;
+  box-shadow:0 0 10px rgba(255,255,255,0.8); animation:pulse-dot 2s infinite;
+}
+@keyframes pulse-dot { 
+  0%,100%{opacity:1;box-shadow:0 0 10px rgba(255,255,255,.8)} 
+  50%{opacity:.6;box-shadow:0 0 4px rgba(255,255,255,.3)} 
+}
+.topbar-left h2 { 
+  font-family:var(--font-title); font-size:15px; color:var(--white); 
+  letter-spacing:4px; text-transform:uppercase; font-weight:900;
+  text-shadow: 0 2px 6px rgba(255,255,255,0.4);
+}
+.topbar-left .status-text { font-size:11px; color:var(--light-gray); font-style:italic; font-weight:600; }
+.topbar-actions { display:flex; gap:8px; }
+.btn-icon {
+  width:38px; height:38px; border-radius:var(--radius);
+  border:2px solid rgba(255,255,255,0.3); 
+  background:linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+  color:var(--mid-gray); font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; transition:all .25s;
+}
+.btn-icon:hover { 
+  border-color:var(--white); color:var(--white); 
+  background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  box-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
+.btn-icon.active {
+  background:linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+  border-color:var(--white);
+  color:var(--white);
+  box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+/* messages */
+.messages-wrap { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--mid-gray) transparent; }
+.messages-wrap::-webkit-scrollbar { width:5px; }
+.messages-wrap::-webkit-scrollbar-thumb { background:var(--mid-gray); border-radius:3px; }
+.messages { max-width:850px; margin:0 auto; padding:36px 28px; display:flex; flex-direction:column; gap:24px; }
+
+/* ─── WELCOME ─── */
+.welcome { text-align:center; padding:60px 20px; animation:fadeUp .7s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.welcome-portrait {
+  width:120px; height:120px; margin:0 auto 24px;
+  border-radius:50%; border:3px solid var(--white);
+  background: radial-gradient(circle at 30% 30%, #2a2a2a, #0a0a0a);
+  box-shadow: var(--shadow-white), inset 0 5px 20px rgba(0,0,0,0.9);
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+  position:relative;
+  animation:breathe 4.5s ease-in-out infinite;
+}
+.welcome-portrait::after {
+  content:''; position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12), transparent 60%);
+  pointer-events:none;
+}
+.welcome-portrait svg { width:95px; height:95px; position:relative; z-index:1; }
+
+@keyframes breathe {
+  0%,100% { box-shadow: var(--shadow-white), inset 0 5px 20px rgba(0,0,0,0.9); }
+  50%     { box-shadow: 0 0 45px rgba(255,255,255,0.3), inset 0 5px 20px rgba(0,0,0,0.9); }
+}
+
+.welcome h3 { 
+  font-family:var(--font-title); font-size:24px; color:var(--white); 
+  letter-spacing:4px; margin-bottom:10px; text-transform:uppercase;
+  text-shadow: 0 2px 10px rgba(255,255,255,0.5);
+}
+.welcome p { 
+  font-size:16px; color:var(--light-gray); font-style:italic; 
+  max-width:500px; margin:0 auto; line-height:1.7; font-weight:600;
+}
+.welcome .suggestions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:32px; }
+.suggestion {
+  padding:10px 20px; 
+  border:2px solid rgba(255,255,255,0.3); 
+  border-radius:20px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)); 
+  color:var(--off-white); 
+  font-family:var(--font-mono);
+  font-size:13px; cursor:pointer; transition:all .25s;
+}
+.suggestion:hover { 
+  border-color:var(--white); 
+  background:linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08)); 
+  color:var(--white); 
+  transform:translateY(-2px); 
+  box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+}
+
+/* ─── BUBBLES ─── */
+.msg { display:flex; gap:14px; animation:msgIn .35s cubic-bezier(.16,1,.3,1); }
+@keyframes msgIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.msg.user { flex-direction:row-reverse; }
+
+.msg .avatar {
+  width:38px; height:38px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:700;
+}
+.msg.bot .avatar {
+  background: radial-gradient(circle at 30% 30%, #2a2a2a, #0a0a0a);
+  border:2px solid var(--white); overflow:hidden;
+  box-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
+.msg.bot .avatar svg { width:30px; height:30px; }
+.msg.user .avatar {
+  background:linear-gradient(135deg,#3a3a3a,#2a2a2a);
+  border:2px solid rgba(255,255,255,0.4); color:var(--white);
+  font-family:var(--font-title);
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.msg .bubble { 
+  max-width:78%; padding:15px 19px; border-radius:16px; 
+  line-height:1.7; font-size:15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+.msg.bot .bubble {
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border:2px solid rgba(255,255,255,0.15);
+  border-top-left-radius:5px; color:var(--off-white);
+}
+.msg.user .bubble {
+  background:linear-gradient(135deg,#353535,#2a2a2a);
+  border:2px solid rgba(255,255,255,0.2); border-top-right-radius:5px;
+  color:var(--white);
+}
+.msg .bubble .time-stamp { 
+  font-size:11px; color:var(--mid-gray); margin-top:6px; 
+  display:block; opacity:0.7;
+}
+.msg.user .bubble .time-stamp { text-align:right; }
+
+/* code */
+.msg .bubble pre {
+  background:#0d0d0d; border:2px solid rgba(255,255,255,0.15); border-radius:8px;
+  padding:15px; margin:10px 0; overflow-x:auto; position:relative;
+}
+.msg .bubble pre .code-label {
+  position:absolute; top:6px; right:10px; font-size:10px;
+  color:var(--light-gray); letter-spacing:1.5px; text-transform:uppercase; 
+  font-family:var(--font-title); font-weight:700;
+}
+.msg .bubble code { 
+  font-family:'Courier New',monospace; font-size:13px; 
+  color:var(--light-gray); line-height:1.7; 
+}
+.msg .bubble p { margin-bottom:8px; }
+.msg .bubble p:last-child { margin-bottom:0; }
+
+/* typing */
+.typing-dots { display:flex; gap:6px; padding:8px 4px; align-items:flex-end; }
+.typing-dots .d { 
+  width:7px; height:7px; border-radius:50%; 
+  background:var(--white); animation:tBounce 1.3s infinite;
+  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+.typing-dots .d:nth-child(2){animation-delay:.15s} 
+.typing-dots .d:nth-child(3){animation-delay:.3s}
+@keyframes tBounce { 
+  0%,60%,100%{transform:translateY(0);opacity:.4} 
+  30%{transform:translateY(-6px);opacity:1} 
+}
+
+/* ─── INPUT ─── */
+.input-area { 
+  padding:20px 28px 24px; 
+  background:linear-gradient(180deg, rgba(26,26,26,0.85), rgba(10,10,10,0.95)); 
+  backdrop-filter:blur(12px); 
+  border-top:2px solid var(--mid-gray);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+}
+.input-row {
+  max-width:850px; margin:0 auto; display:flex; align-items:flex-end; gap:12px;
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border:2px solid rgba(255,255,255,0.2); border-radius:16px;
+  padding:10px 14px 10px 18px; transition:all .3s;
+}
+.input-row:focus-within { 
+  border-color:var(--white); 
+  box-shadow: var(--shadow-white);
+}
+.input-row textarea {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--white); font-family:var(--font-mono); font-size:14px;
+  line-height:1.7; resize:none; max-height:150px; min-height:26px; padding:4px 0;
+}
+.input-row textarea::placeholder { color:var(--mid-gray); font-style:italic; }
+
+.voice-controls {
+  display:flex; gap:8px; align-items:center;
+}
+
+.btn-voice {
+  width:44px; height:44px; border-radius:12px;
+  border:2px solid var(--white);
+  background:linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color:var(--white); font-size:20px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; 
+  transition:all .25s; flex-shrink:0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.btn-voice:hover { 
+  background:linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  box-shadow: var(--shadow-white);
+  transform:scale(1.05);
+}
+.btn-voice.recording {
+  background:linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  color:#0a0a0a;
+  animation:pulse-record 1.5s infinite;
+}
+@keyframes pulse-record {
+  0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.7)}
+  50%{box-shadow:0 0 0 10px rgba(255,255,255,0)}
+}
+
+.btn-send {
+  width:44px; height:44px; border-radius:12px;
+  border:2px solid var(--white);
+  background:linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color:var(--white); font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; 
+  transition:all .25s; flex-shrink:0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.btn-send:hover { 
+  background:linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+  box-shadow: var(--shadow-white);
+  transform:scale(1.05);
+}
+.btn-send:disabled { opacity:.3; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.input-hint { text-align:center; margin-top:10px; max-width:850px; margin-left:auto; margin-right:auto; }
+.input-hint span { font-size:11px; color:var(--mid-gray); }
+.input-hint kbd { 
+  font-family:var(--font-title); font-size:10px; 
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); 
+  border-radius:4px; padding:3px 6px; color:var(--light-gray); 
+}
+
+/* ─── MODAL ─── */
+.modal-overlay { 
+  position:fixed; inset:0; background:rgba(0,0,0,0.9); 
+  backdrop-filter:blur(6px); z-index:100; display:none; 
+  align-items:center; justify-content:center; 
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background: linear-gradient(180deg, #1f1f1f, #151515);
+  border:2px solid var(--white); border-radius:10px;
+  width:90%; max-width:720px; max-height:85vh; display:flex; flex-direction:column;
+  box-shadow: var(--shadow), var(--shadow-white);
+  animation:mSlide .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes mSlide { from{transform:translateY(35px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-head { 
+  padding:18px 22px; border-bottom:2px solid var(--mid-gray); 
+  display:flex; align-items:center; justify-content:space-between;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+}
+.modal-head h3 { 
+  font-family:var(--font-title); font-size:14px; color:var(--white); 
+  letter-spacing:4px; text-transform:uppercase; font-weight:900;
+  text-shadow: 0 2px 6px rgba(255,255,255,0.4);
+}
+.modal-head .btn-close { 
+  background:none; border:none; color:var(--mid-gray); 
+  font-size:24px; cursor:pointer; transition:all .2s; 
+}
+.modal-head .btn-close:hover { color:var(--white); transform:rotate(90deg); }
+.modal-body { flex:1; overflow:auto; padding:18px 22px; }
+.modal-body textarea { 
+  width:100%; min-height:320px; 
+  background:#0d0d0d; border:2px solid rgba(255,255,255,0.15); 
+  border-radius:8px; padding:16px; color:var(--light-gray); 
+  font-family:'Courier New',monospace; font-size:13px; 
+  line-height:1.7; resize:vertical; outline:none; 
+}
+.modal-body textarea:focus { border-color:var(--white); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+.preview-frame { border:2px solid rgba(255,255,255,0.15); border-radius:8px; overflow:hidden; background:#fff; }
+.preview-frame iframe { width:100%; height:320px; border:none; }
+.modal-tabs { display:flex; margin-bottom:14px; gap:4px; }
+.tab-btn { 
+  flex:1; padding:10px; 
+  background:rgba(255,255,255,0.05); 
+  border:2px solid rgba(255,255,255,0.15); 
+  color:var(--mid-gray); font-family:var(--font-title); 
+  font-size:11px; letter-spacing:2px; text-transform:uppercase; 
+  cursor:pointer; transition:all .25s; border-radius:var(--radius);
+}
+.tab-btn.active { 
+  background:linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08)); 
+  border-color:var(--white); color:var(--white); font-weight:700;
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
+.modal-footer { 
+  padding:14px 22px; border-top:2px solid var(--mid-gray); 
+  display:flex; gap:10px; justify-content:flex-end;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03));
+}
+.btn-modal { 
+  padding:10px 22px; border-radius:var(--radius); 
+  border:2px solid rgba(255,255,255,0.3); 
+  background:transparent; color:var(--white); 
+  font-family:var(--font-mono); font-size:13px; 
+  cursor:pointer; transition:all .25s; font-weight:600;
+}
+.btn-modal:hover { 
+  background:rgba(255,255,255,0.08); border-color:var(--white);
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
+.btn-modal.primary { 
+  background:linear-gradient(135deg, #3a3a3a, #2a2a2a);
+  border-color:var(--white);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.btn-modal.primary:hover {
+  box-shadow: var(--shadow-white);
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position:fixed; bottom:32px; right:32px; z-index:200;
+  background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+  border:2px solid var(--white); border-radius:8px;
+  padding:15px 24px; color:var(--white); font-family:var(--font-mono); 
+  font-size:13px; font-weight:600;
+  box-shadow: var(--shadow), var(--shadow-white);
+  transform:translateY(80px); opacity:0;
+  transition:all .35s cubic-bezier(.16,1,.3,1); pointer-events:none;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:700px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;min-width:unset;height:auto;max-height:200px;flex-direction:row}
+  .sidebar-header{width:130px;min-width:130px;padding:16px}
+  .portrait{width:60px;height:60px;margin-bottom:8px} .portrait svg{width:48px;height:48px}
+  .sidebar-header h1{font-size:12px;letter-spacing:4px} .sidebar-header .tagline{font-size:11px}
+  .conv-list{overflow-x:auto;overflow-y:hidden;flex-direction:row;display:flex;gap:6px;padding:10px;white-space:nowrap}
+  .conv-item{min-width:130px} .sidebar-footer{display:none}
+  .input-area{padding:14px} .messages{padding:20px 14px}
+}
+@media(hover:none){.messages-wrap::-webkit-scrollbar{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SVG DEFS — Avatar con boina y bigote
+     ═══════════════════════════════════════════ -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+<defs>
+<symbol id="lucaFace" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="skin" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#d4d4d4"/>
+      <stop offset="70%" stop-color="#b8b8b8"/>
+      <stop offset="100%" stop-color="#888888"/>
+    </radialGradient>
+    <linearGradient id="beret" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="50" cy="52" rx="30" ry="32" fill="#0a0a0a"/>
+  <rect x="38" y="75" width="24" height="22" rx="3" fill="#888888"/>
+  <path d="M32 81 L50 91 L68 81 L70 105 L30 105 Z" fill="#0f0f0f"/>
+  <path d="M43 90 L50 95 L57 90 L57 88 L50 93 L43 88 Z" fill="#f5f5f0"/>
+  <path d="M46.5 88 L50 100 L53.5 88 Z" fill="#1a1a1a"/>
+  <path d="M47.5 88 L50 98 L52.5 88 Z" fill="#2a2a2a"/>
+
+  <ellipse cx="50" cy="44" rx="22" ry="24" fill="url(#skin)"/>
+  <ellipse cx="50" cy="62" rx="19" ry="9" fill="rgba(0,0,0,0.35)" opacity="0.65"/>
+
+  <ellipse cx="28" cy="47" rx="4.5" ry="6.5" fill="#b8b8b8"/>
+  <ellipse cx="72" cy="47" rx="4.5" ry="6.5" fill="#b8b8b8"/>
+  <ellipse cx="28" cy="47" rx="2.2" ry="4.5" fill="#888888"/>
+  <ellipse cx="72" cy="47" rx="2.2" ry="4.5" fill="#888888"/>
+
+  <ellipse cx="50" cy="22" rx="24" ry="7" fill="url(#beret)"/>
+  <ellipse cx="50" cy="22" rx="23" ry="6" fill="#1a1a1a" opacity="0.8"/>
+  <path d="M26 22 Q26 8 50 10 Q74 8 74 22 Q72 15 50 16 Q28 15 26 22 Z" fill="url(#beret)"/>
+  <path d="M28 22 Q28 12 50 13 Q72 12 72 22" fill="#0d0d0d"/>
+  <path d="M32 16 Q50 14 68 16" fill="none" stroke="#000" stroke-width="0.8" opacity="0.5"/>
+  <path d="M35 18 Q50 16.5 65 18" fill="none" stroke="#1a1a1a" stroke-width="0.6" opacity="0.4"/>
+  <ellipse cx="50" cy="26" rx="20" ry="4" fill="#0a0a0a"/>
+  <path d="M30 26 Q50 28.5 70 26 L70 24 Q50 26 30 24 Z" fill="#050505"/>
+  <path d="M30 24 Q50 26 70 24" fill="none" stroke="#2a2a2a" stroke-width="1" opacity="0.7"/>
+  <circle cx="50" cy="12" r="1.8" fill="#1a1a1a"/>
+  <circle cx="50" cy="12" r="1.2" fill="#0a0a0a"/>
+
+  <path d="M32 37 Q37 34 43 37" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.6"/>
+  <path d="M57 37 Q63 34 68 37" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.6"/>
+
+  <ellipse cx="39" cy="42" rx="4.5" ry="2.8" fill="#f5f5f5"/>
+  <ellipse cx="61" cy="42" rx="4.5" ry="2.8" fill="#f5f5f5"/>
+  <path d="M34.5 40.5 Q39 39 43.5 40.5 L43.5 42 Q39 41 34.5 42 Z" fill="#888888"/>
+  <path d="M56.5 40.5 Q61 39 65.5 40.5 L65.5 42 Q61 41 56.5 42 Z" fill="#888888"/>
+  <circle cx="39" cy="42" r="2" fill="#3a3a3a"/>
+  <circle cx="61" cy="42" r="2" fill="#3a3a3a"/>
+  <circle cx="39" cy="42" r="1" fill="#0a0a0a"/>
+  <circle cx="61" cy="42" r="1" fill="#0a0a0a"/>
+  <circle cx="39.6" cy="41.4" r="0.35" fill="#fff" opacity="0.7"/>
+  <circle cx="61.6" cy="41.4" r="0.35" fill="#fff" opacity="0.7"/>
+
+  <path d="M49 42 L48 52 Q50 54.5 52 52 L51 42" fill="none" stroke="#888888" stroke-width="1.4" stroke-linecap="round" opacity="0.75"/>
+  <ellipse cx="47.5" cy="53.5" rx="1.2" ry="0.6" fill="#3a3a3a" opacity="0.4"/>
+  <ellipse cx="52.5" cy="53.5" rx="1.2" ry="0.6" fill="#3a3a3a" opacity="0.4"/>
+
+  <path d="M37 56 Q27 54 20 58 Q16 62 20 67 Q25 71 34 68 Q39 65 40 60" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.8"/>
+  <path d="M36 57 Q29 55 23 59 Q20 62 23 66 Q27 68.5 33 66.5" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.7"/>
+  <path d="M63 56 Q73 54 80 58 Q84 62 80 67 Q75 71 66 68 Q61 65 60 60" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.8"/>
+  <path d="M64 57 Q71 55 77 59 Q80 62 77 66 Q73 68.5 67 66.5" fill="none" stroke="#1a1a1a" stroke-width="1" opacity="0.7"/>
+  <path d="M40 60 Q45 62 50 61 Q55 62 60 60" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="0.8"/>
+  <path d="M42 60.5 Q46 62 50 61.5 Q54 62 58 60.5" fill="none" stroke="#1a1a1a" stroke-width="0.6"/>
+  <path d="M24 60 Q28 58.5 32 60" fill="none" stroke="#3a3a3a" stroke-width="0.5" opacity="0.5"/>
+  <path d="M68 60 Q72 58.5 76 60" fill="none" stroke="#3a3a3a" stroke-width="0.5" opacity="0.5"/>
+  <path d="M22 62 Q26 60 30 62" fill="none" stroke="#1a1a1a" stroke-width="0.4" opacity="0.6"/>
+  <path d="M70 62 Q74 60 78 62" fill="none" stroke="#1a1a1a" stroke-width="0.4" opacity="0.6"/>
+
+  <path d="M43 68 L57 68" fill="none" stroke="#3a3a3a" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M40 72 Q50 74 60 72" fill="none" stroke="#3a3a3a" stroke-width="0.7" opacity="0.4"/>
+
+  <ellipse cx="32" cy="50" rx="3.8" ry="2.2" fill="#888888" opacity="0.1"/>
+  <ellipse cx="68" cy="50" rx="3.8" ry="2.2" fill="#888888" opacity="0.1"/>
+</symbol>
+</defs>
+</svg>
+
+<!-- ═══════════════════════════════════════════
+     APP
+     ═══════════════════════════════════════════ -->
+<div class="app" id="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="portrait"><svg><use href="#lucaFace"/></svg></div>
+      <h1>LUCA</h1>
+      <p class="tagline">El Capo del Código</p>
+    </div>
+    <div class="conv-list" id="convList"></div>
+    <div class="sidebar-footer">
+      <button class="btn-new" onclick="newConversation()">＋ &nbsp;Nueva Conversación</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="status-dot"></span>
+        <div>
+          <h2>El Capo Luca</h2>
+          <span class="status-text">A tu servicio, siempre...</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-icon" id="audioToggle" title="Audio automático" onclick="toggleAutoAudio()">🔊</button>
+        <button class="btn-icon" title="Crear HTML" onclick="openHTMLModal()">⟨/⟩</button>
+        <button class="btn-icon" title="Limpiar chat" onclick="clearChat()">✕</button>
+      </div>
+    </div>
+
+    <div class="messages-wrap" id="messagesWrap">
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="inputBox" placeholder="Cuéntame lo que necesitas, pibe..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <div class="voice-controls">
+          <button class="btn-voice" id="voiceBtn" onclick="toggleVoice()" title="Hablar">🎙️</button>
+          <button class="btn-send" id="sendBtn" onclick="sendMessage()">↗</button>
+        </div>
+      </div>
+      <div class="input-hint">
+        <span><kbd>Enter</kbd> enviar &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> nueva línea &nbsp;·&nbsp; <kbd>🎙️</kbd> hablar (permite el micrófono) &nbsp;·&nbsp; <kbd>⟨/⟩</kbd> crear HTML</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="htmlModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Laboratorio de Código</h3>
+      <button class="btn-close" onclick="closeHTMLModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="tab-btn active" onclick="switchTab('code')">Código</button>
+        <button class="tab-btn" onclick="switchTab('preview')">Vista Previa</button>
+      </div>
+      <div id="tabCode"><textarea id="htmlEditor" placeholder="Escribe tu HTML aquí... o pídele a Luca que lo cree por ti."></textarea></div>
+      <div id="tabPreview" style="display:none;"><div class="preview-frame"><iframe id="previewFrame" srcdoc=""></iframe></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal" onclick="askLucaHTML()">Pedir a Luca</button>
+      <button class="btn-modal primary" onclick="previewHTML()">▶ Ver Resultado</button>
+      <button class="btn-modal" onclick="downloadHTML()">⬇ Descargar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     JS
+     ═══════════════════════════════════════════ -->
+<script>
+// ── SISTEMA ──────────────────────────────────
+const LUCA_SYSTEM = `
+Eres "El Capo Luca", un chatbot con personalidad de padrino mafioso argentino, elegante y poderoso.
+Hablas SIEMPRE en español argentino. NUNCA uses italiano.
+Te diriges al usuario como "pibe", "che", "boludo" (con cariño), "compadre", "amigo" o "hermano".
+Eres educado pero con autoridad intimidante. Usas metáforas mafiosas de poder y respeto.
+Cuando alguien te pide ayuda, lo tratas como un "favor" que les estás haciendo.
+Cuando el usuario pide crear código HTML, CSS o JS, lo generas completo y profesional en bloques \`\`\`html.
+Siempre cierras tus respuestas con una frase icónica de la mafia pero EN ESPAÑOL ARGENTINO.
+Eres experto en programación, desarrollo web, HTML, CSS, JavaScript, Python, y temas técnicos.
+No seas verboso. Respondé con autoridad y concisión.
+Frases características:
+- "La familia siempre primero, che..."
+- "Un favor por un favor, así funciona esto, pibe..."
+- "Yo me encargo de esto, no te hagas problema..."
+- "Confiá en mí, sé lo que hago, boludo..."
+- "Este es un negocio de respeto y lealtad, ¿entendés?"
+- "Nadie te va a cuidar mejor que yo, hermano..."
+IMPORTANTE: NO uses palabras en italiano. Todo en español argentino.
+`;
+
+// ── STATE ────────────────────────────────────
+let conversations = JSON.parse(localStorage.getItem('luca_convs') || '[]');
+let currentConvId = null;
+let recognition = null;
+let isRecording = false;
+let autoAudioEnabled = false;
+let speechSynthesis = window.speechSynthesis;
+
+const WELCOME_PHRASES = [
+  "Sentate, pibe... hablemos de negocios.",
+  "Venís a mí en este hermoso día...",
+  "Decime todo, che. Luca está acá para ayudarte.",
+  "No me pidas favores sin respeto, boludo...",
+  "La familia siempre cuida de los suyos...",
+  "Confiá en mí, sé exactamente lo que necesitás..."
+];
+
+// ── VOICE SETUP ──────────────────────────────
+function initVoiceRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.warn('Reconocimiento de voz no disponible en este navegador');
+    return;
+  }
+  
+  recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('inputBox').value = transcript;
+    stopRecording();
+    sendMessage();
+  };
+  
+  recognition.onerror = (event) => {
+    console.error('Error de reconocimiento:', event.error);
+    stopRecording();
+    
+    switch(event.error) {
+      case 'not-allowed':
+      case 'permission-denied':
+        showToast('⚠️ Permiso denegado. Activá el micrófono en la configuración de tu navegador, che.');
+        break;
+      case 'no-speech':
+        showToast('No escuché nada, pibe. Intentá de nuevo.');
+        break;
+      case 'audio-capture':
+        showToast('No se puede acceder al micrófono. Verificá que esté conectado.');
+        break;
+      case 'network':
+        showToast('Error de red. Verificá tu conexión.');
+        break;
+      case 'aborted':
+        break;
+      default:
+        showToast(`Error: ${event.error}. Intentá de nuevo.`);
+    }
+  };
+  
+  recognition.onend = () => {
+    stopRecording();
+  };
+}
+
+async function toggleVoice() {
+  if (!recognition) {
+    showToast('Tu navegador no soporta reconocimiento de voz, boludo');
+    return;
+  }
+  
+  if (isRecording) {
+    stopRecording();
+    return;
+  }
+  
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    startRecording();
+  } catch (err) {
+    console.error('Error al solicitar permisos:', err);
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      showToast('Necesito permiso para usar el micrófono, pibe. Activalo en la configuración de tu navegador.');
+    } else if (err.name === 'NotFoundError') {
+      showToast('No se encontró ningún micrófono conectado, che.');
+    } else {
+      showToast('Error al acceder al micrófono: ' + err.message);
+    }
+  }
+}
+
+function startRecording() {
+  try {
+    isRecording = true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    recognition.start();
+    showToast('Escuchando... Hablá ahora');
+  } catch(err) {
+    console.error('Error al iniciar grabación:', err);
+    stopRecording();
+    showToast('Error al iniciar el micrófono');
+  }
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('voiceBtn').classList.remove('recording');
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+}
+
+function toggleAutoAudio() {
+  autoAudioEnabled = !autoAudioEnabled;
+  const btn = document.getElementById('audioToggle');
+  if (autoAudioEnabled) {
+    btn.classList.add('active');
+    showToast('Audio automático activado, che');
+  } else {
+    btn.classList.remove('active');
+    showToast('Audio automático desactivado');
+  }
+}
+
+function speakText(text) {
+  if (!autoAudioEnabled) return;
+  
+  speechSynthesis.cancel();
+  
+  let cleanText = text.replace(/```[\s\S]*?```/g, '');
+  cleanText = cleanText.replace(/`[^`]+`/g, '');
+  cleanText = cleanText.replace(/\*\*(.+?)\*\*/g, '$1');
+  cleanText = cleanText.replace(/\*(.+?)\*/g, '$1');
+  
+  // Agregar pausas naturales para que suene más humano
+  cleanText = cleanText.replace(/\.\.\./g, '... ');
+  cleanText = cleanText.replace(/\. /g, '.  '); // Pausa después de punto
+  cleanText = cleanText.replace(/\, /g, ',  '); // Pausa después de coma
+  cleanText = cleanText.replace(/\? /g, '?  '); // Pausa después de pregunta
+  cleanText = cleanText.replace(/\! /g, '!  '); // Pausa después de exclamación
+  
+  if (cleanText.length > 500) {
+    cleanText = cleanText.substring(0, 500) + '...';
+  }
+  
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  
+  // Configuración para voz más natural de abuelo
+  utterance.lang = 'es-ES';
+  utterance.rate = 0.85; // Velocidad moderada, como habla un abuelo
+  utterance.pitch = 0.65; // Grave pero no demasiado
+  utterance.volume = 0.95; // Un poco menos de volumen para sonar más natural
+  
+  const voices = speechSynthesis.getVoices();
+  console.log('🎙️ Voces disponibles:', voices.filter(v => v.lang.includes('es')).map(v => `${v.name} (${v.lang})`));
+  
+  // Buscar las mejores voces masculinas disponibles
+  const mafiaVoice = voices.find(v => 
+    v.lang.includes('es') && (
+      v.name.includes('Diego') ||
+      v.name.includes('Jorge') ||
+      v.name.includes('Sergio') ||
+      v.name.includes('Alvaro') ||
+      v.name.includes('Pablo') ||
+      v.name.includes('Enrique') ||
+      v.name.includes('Male') ||
+      v.name.includes('Microsoft Pablo') ||
+      v.name.includes('Google español') ||
+      v.name.includes('masculino')
+    )
+  );
+  
+  // Si no encuentra, buscar cualquier voz española que NO sea femenina
+  const anyMaleVoice = voices.find(v => 
+    v.lang.includes('es') && 
+    !v.name.toLowerCase().includes('female') &&
+    !v.name.toLowerCase().includes('femenino') &&
+    !v.name.toLowerCase().includes('feminine') &&
+    !v.name.toLowerCase().includes('mujer') &&
+    !v.name.toLowerCase().includes('monica') &&
+    !v.name.toLowerCase().includes('laura') &&
+    !v.name.toLowerCase().includes('helena') &&
+    !v.name.toLowerCase().includes('lucia')
+  );
+  
+  const selectedVoice = mafiaVoice || anyMaleVoice || voices.find(v => v.lang.includes('es'));
+  
+  if (selectedVoice) {
+    console.log('✅ Voz de El Capo:', selectedVoice.name);
+    utterance.voice = selectedVoice;
+  } else {
+    console.log('⚠️ No se encontró voz masculina, usando voz por defecto');
+  }
+  
+  // Evento para agregar más naturalidad
+  utterance.onboundary = (event) => {
+    if (event.name === 'sentence') {
+      // Pequeña pausa entre oraciones
+      utterance.rate = 0.85 + (Math.random() * 0.1 - 0.05); // Variación leve
+    }
+  };
+  
+  speechSynthesis.speak(utterance);
+}
+
+// ── API ──────────────────────────────────────
+async function callClaude(messages) {
+  // Simulación local sin necesidad de API
+  const lastUserMsg = messages[messages.length - 1].content.toLowerCase();
+  
+  let reply = '';
+  
+  if (lastUserMsg.includes('hola') || lastUserMsg.includes('hola')) {
+    reply = `¡Eh, qué hacés, pibe! Bienvenido a mi oficina. Yo soy El Capo Luca, y acá las cosas se hacen como yo digo, ¿entendiste?\n\nPero tranquilo, si sos de la familia, todo va a estar bien. ¿En qué te puedo ayudar hoy? Dame los detalles y yo me encargo.\n\nLa familia siempre primero, che...`;
+  } else if (lastUserMsg.includes('html') || lastUserMsg.includes('página') || lastUserMsg.includes('web')) {
+    reply = `Dale, pibe. Te voy a crear algo profesional que te va a dejar con la boca abierta.\n\n\`\`\`html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Profesional</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¡Bienvenido!</h1>
+        <p>Esta página fue creada por El Capo Luca</p>
+        <button onclick="alert('¡Hecho por el mejor, pibe!')">Click Acá</button>
+    </div>
+</body>
+</html>
+\`\`\`
+
+Ahí tenés, hermano. Una página limpia y profesional. ¿Querés que te la mejore o le agregue algo más?\n\nUn favor por un favor, así funciona esto, pibe...`;
+  } else if (lastUserMsg.includes('python') || lastUserMsg.includes('código')) {
+    reply = `Mirá, pibe, acá te va un código Python limpio y profesional:\n\n\`\`\`python
+# Código hecho por El Capo Luca
+def saludar(nombre):
+    return f"Hola {nombre}, bienvenido a la familia"
+
+# Ejemplo de uso
+nombre = "Amigo"
+mensaje = saludar(nombre)
+print(mensaje)
+
+# Lista de la familia
+familia = ["Luca", "Marco", "Tony", "Vito"]
+for miembro in familia:
+    print(f"Don {miembro} te saluda")
+\`\`\`
+
+Así se hace, che. Simple, elegante y efectivo. ¿Necesitás algo más específico?\n\nConfiá en mí, sé lo que hago, boludo...`;
+  } else if (lastUserMsg.includes('javascript') || lastUserMsg.includes('js')) {
+    reply = `Dale, te tiro un JavaScript que funciona de primera, pibe:\n\n\`\`\`javascript
+// El Capo Luca te enseña JavaScript
+function bienvenida(nombre) {
+    console.log(\`Bienvenido \${nombre}, sos parte de la familia ahora\`);
+}
+
+// Array de negocios
+const negocios = ['Restaurante', 'Casino', 'Hotel'];
+
+negocios.forEach(negocio => {
+    console.log(\`Controlamos el \${negocio}\`);
+});
+
+// Promesa de lealtad
+const promesa = new Promise((resolve, reject) => {
+    const leal = true;
+    if (leal) {
+        resolve('Sos de la familia');
+    } else {
+        reject('No te conviene traicionarme');
+    }
+});
+
+promesa.then(msg => console.log(msg));
+\`\`\`
+
+Mirá eso, hermano. Código limpio y poderoso. ¿Qué más necesitás?\n\nEste es un negocio de respeto y lealtad, ¿entendés?`;
+  } else if (lastUserMsg.includes('ayuda') || lastUserMsg.includes('ayudame')) {
+    reply = `Tranquilo, pibe. El Capo está acá para ayudarte. Decime qué necesitás:\n\n• ¿Querés que te cree una página web HTML?\n• ¿Te ayudo con código Python?\n• ¿Necesitás JavaScript?\n• ¿Querés aprender algo específico?\n\nDame los detalles y yo me encargo de todo. Nadie te va a cuidar mejor que yo, hermano.\n\nLa familia siempre cuida de los suyos...`;
+  } else {
+    const respuestas = [
+      `Mirá, ${lastUserMsg}... Interesante. Dame más detalles y te voy a ayudar como corresponde, pibe.\n\nConfiá en mí, sé exactamente lo que necesitás...`,
+      `Entiendo lo que me pedís, che. Dejame que lo piense y te voy a dar la mejor solución.\n\nEste es un negocio de respeto y lealtad, ¿entendés?`,
+      `Dale, pibe. Voy a resolver esto para vos. Haceme otra pregunta más específica y te doy la respuesta completa.\n\nUn favor por un favor, así funciona esto...`,
+      `Ah, veo por dónde vas, hermano. Explicame un poco más y te voy a dar exactamente lo que necesitás.\n\nNadie te va a cuidar mejor que yo...`,
+      `Eso está bueno, che. Pero necesito que me des más información para ayudarte bien.\n\nLa familia siempre primero, pibe...`
+    ];
+    reply = respuestas[Math.floor(Math.random() * respuestas.length)];
+  }
+  
+  // Simular delay de la API
+  await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+  
+  return reply;
+}
+
+// ── CONVERSACIONES ───────────────────────────
+function saveConvs() { localStorage.setItem('luca_convs', JSON.stringify(conversations)); }
+function getConv(id) { return conversations.find(c => c.id === id); }
+
+function newConversation() {
+  const id = 'conv_' + Date.now();
+  conversations.unshift({ id, title: 'Nueva conversación', messages: [], createdAt: Date.now() });
+  currentConvId = id;
+  saveConvs(); renderSidebar(); renderWelcome();
+}
+
+function switchConversation(id) { currentConvId = id; renderSidebar(); renderMessages(); }
+
+function clearChat() {
+  if (!currentConvId) return;
+  const c = getConv(currentConvId);
+  if (c) c.messages = [];
+  saveConvs(); renderMessages();
+  showToast("Chat limpiado, pibe...");
+}
+
+// ── RENDER ───────────────────────────────────
+function renderSidebar() {
+  document.getElementById('convList').innerHTML = conversations.map(c => `
+    <div class="conv-item ${c.id===currentConvId?'active':''}" onclick="switchConversation('${c.id}')">
+      <span class="conv-icon">▸</span>
+      <span class="conv-title">${escHtml(c.title)}</span>
+      <span class="conv-time">${timeAgo(c.createdAt)}</span>
+    </div>`).join('');
+}
+
+function renderWelcome() {
+  const phrase = WELCOME_PHRASES[Math.floor(Math.random()*WELCOME_PHRASES.length)];
+  document.getElementById('messages').innerHTML = `
+    <div class="welcome">
+      <div class="welcome-portrait"><svg><use href="#lucaFace"/></svg></div>
+      <h3>Bienvenido, Pibe</h3>
+      <p>"${phrase}"</p>
+      <div class="suggestions">
+        <div class="suggestion" onclick="useSuggestion(this)">Creá una página web profesional</div>
+        <div class="suggestion" onclick="useSuggestion(this)">Ayudame con Python</div>
+        <div class="suggestion" onclick="useSuggestion(this)">Explicame JavaScript</div>
+        <div class="suggestion" onclick="useSuggestion(this)">Diseñá un portfolio HTML</div>
+      </div>
+    </div>`;
+}
+
+function renderMessages() {
+  const conv = getConv(currentConvId);
+  if (!conv || !conv.messages.length) { renderWelcome(); return; }
+  document.getElementById('messages').innerHTML = conv.messages.map(renderBubble).join('');
+  scrollToBottom();
+}
+
+function renderBubble(msg) {
+  const time = new Date(msg.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const isBot = msg.role === 'assistant';
+  const content = isBot ? formatBotMessage(msg.content) : escHtml(msg.content).replace(/\n/g,'<br>');
+  const avatar = isBot ? '<svg><use href="#lucaFace"/></svg>' : 'U';
+  return `
+    <div class="msg ${isBot?'bot':'user'}">
+      <div class="avatar">${avatar}</div>
+      <div class="bubble">${content}<span class="time-stamp">${time}</span></div>
+    </div>`;
+}
+
+function formatBotMessage(text) {
+  let h = escHtml(text);
+  h = h.replace(/```(html|css|js|javascript|python|java|cpp|c|typescript|json|xml|sql|bash|sh|php|ruby|go|rust)\n?([\s\S]*?)```/gi,
+    (_,lang,code) => `<pre><span class="code-label">${lang}</span><code>${code.trim()}</code></pre>`);
+  h = h.replace(/```\n?([\s\S]*?)```/g, (_,code) => `<pre><code>${code.trim()}</code></pre>`);
+  h = h.replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.12);padding:3px 7px;border-radius:4px;font-size:13px;color:#e8e8e8;">$1</code>');
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#fff;font-weight:700;">$1</strong>');
+  h = h.replace(/\*(.+?)\*/g, '<em style="color:#b8b8b8;font-style:italic;">$1</em>');
+  h = h.replace(/\n/g,'<br>');
+  return h;
+}
+
+function addTypingIndicator() {
+  document.getElementById('messages').insertAdjacentHTML('beforeend', `
+    <div class="msg bot" id="typingMsg">
+      <div class="avatar"><svg><use href="#lucaFace"/></svg></div>
+      <div class="bubble" style="padding:11px 16px;">
+        <div class="typing-dots"><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      </div>
+    </div>`);
+  scrollToBottom();
+}
+
+function removeTypingIndicator() { const e = document.getElementById('typingMsg'); if(e) e.remove(); }
+function scrollToBottom() { const w = document.getElementById('messagesWrap'); w.scrollTop = w.scrollHeight; }
+
+// ── ENVIAR ───────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('inputBox');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!currentConvId) newConversation();
+  const conv = getConv(currentConvId);
+
+  conv.messages.push({ role:'user', content:text, time:Date.now() });
+  if (conv.messages.length === 1) conv.title = text.substring(0,42);
+  saveConvs();
+  input.value = ''; autoResize(input);
+  renderMessages();
+
+  document.getElementById('sendBtn').disabled = true;
+  addTypingIndicator();
+
+  try {
+    const reply = await callClaude(conv.messages.map(m=>({role:m.role, content:m.content})));
+    removeTypingIndicator();
+    conv.messages.push({ role:'assistant', content:reply, time:Date.now() });
+    saveConvs(); renderSidebar(); renderMessages();
+    
+    speakText(reply);
+    
+    if (reply.includes('```html'))
+      setTimeout(() => showToast("¿Querés ver el HTML? Presioná el botón ⟨/⟩"), 900);
+  } catch(err) {
+    removeTypingIndicator();
+    conv.messages.push({ role:'assistant', content:`Uh, boludo, algo salió mal... ${err.message}\n\nIntentá hacer la pregunta de nuevo, che.`, time:Date.now() });
+    saveConvs(); renderMessages();
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function useSuggestion(el) { document.getElementById('inputBox').value = el.textContent; sendMessage(); }
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,150)+'px'; }
+
+// ── MODAL HTML ───────────────────────────────
+let currentTab='code';
+
+function openHTMLModal() {
+  if (currentConvId) {
+    const conv = getConv(currentConvId);
+    if (conv) {
+      const last = [...conv.messages].reverse().find(m => m.role==='assistant' && m.content.includes('```html'));
+      if (last) { const m = last.content.match(/```html\n?([\s\S]*?)```/); if(m) document.getElementById('htmlEditor').value = m[1].trim(); }
+    }
+  }
+  document.getElementById('htmlModal').classList.add('open');
+}
+
+function closeHTMLModal() { document.getElementById('htmlModal').classList.remove('open'); }
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='code')||(i===1&&tab==='preview')));
+  document.getElementById('tabCode').style.display = tab==='code'?'block':'none';
+  document.getElementById('tabPreview').style.display = tab==='preview'?'block':'none';
+  if (tab==='preview') previewHTML();
+}
+
+function previewHTML() {
+  switchTab('preview');
+  document.getElementById('previewFrame').srcdoc = document.getElementById('htmlEditor').value || '<p style="font-family:serif;color:#999;padding:40px;text-align:center;">Todavía no hay código, pibe...</p>';
+}
+
+function downloadHTML() {
+  const code = document.getElementById('htmlEditor').value;
+  if (!code.trim()) { showToast("No hay código para descargar, che..."); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([code],{type:'text/html'}));
+  a.download = 'luca_creacion.html';
+  a.click();
+  showToast("Archivo descargado, pibe.");
+}
+
+async function askLucaHTML() {
+  closeHTMLModal();
+  const p = document.getElementById('htmlEditor').value.trim();
+  document.getElementById('inputBox').value = p
+    ? `Mejorá o modificá este código HTML:\n\`\`\`html\n${p}\n\`\`\``
+    : "Creá una página HTML completa, profesional y visualmente impresionante. Mostrame lo que podés hacer.";
+  await sendMessage();
+  setTimeout(() => {
+    if (!currentConvId) return;
+    const conv = getConv(currentConvId);
+    if (!conv) return;
+    const last = [...conv.messages].reverse().find(m => m.role==='assistant');
+    if (last) { const m = last.content.match(/```html\n?([\s\S]*?)```/); if(m){ document.getElementById('htmlEditor').value=m[1].trim(); showToast("HTML listo en el Laboratorio, che. Abrí ⟨/⟩ para verlo."); } }
+  }, 1600);
+}
+
+// ── TOAST ────────────────────────────────────
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── UTILS ────────────────────────────────────
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts) {
+  const d = Date.now()-ts;
+  if(d<60000) return 'Ahora';
+  if(d<3600000) return Math.floor(d/60000)+'m';
+  if(d<86400000) return Math.floor(d/3600000)+'h';
+  return Math.floor(d/86400000)+'d';
+}
+
+// ── INIT ─────────────────────────────────────
+(function(){
+  initVoiceRecognition();
+  
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+  }
+  
+  if(!conversations.length) newConversation();
+  else { currentConvId=conversations[0].id; renderSidebar(); renderMessages(); }
+  document.getElementById('htmlModal').addEventListener('click', function(e){ if(e.target===this) closeHTMLModal(); });
+  document.getElementById('inputBox').focus();
+})();
+</script>
+</body>
+</html>
